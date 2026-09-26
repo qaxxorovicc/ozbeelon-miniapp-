@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OZBEBOZOR — E'lon joylash</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f4f6f8;
+  color:#17212b
+}
+
+.wrap{
+  max-width:620px;
+  margin:auto;
+  padding:18px
+}
+
+.title{
+  font-size:24px;
+  font-weight:700;
+  margin-bottom:6px
+}
+
+.sub{
+  color:#667781;
+  margin-bottom:18px
+}
+
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:18px
+}
+
+label{
+  display:block;
+  font-weight:600;
+  margin:14px 0 7px
+}
+
+input,textarea{
+  width:100%;
+  font-size:16px;
+  padding:13px;
+  border:1px solid #d8dee3;
+  border-radius:10px;
+  outline:none
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical
+}
+
+input:focus,textarea:focus{
+  border-color:#2481cc
+}
+
+.photos{
+  margin-top:18px;
+  padding:14px;
+  border:1px dashed #b9c2ca;
+  border-radius:12px
+}
+
+.photos small{
+  display:block;
+  color:#667781;
+  margin-top:6px
+}
+
+.preview{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:10px
+}
+
+.preview img{
+  width:78px;
+  height:78px;
+  object-fit:cover;
+  border-radius:9px
+}
+
+.btn{
+  width:100%;
+  margin-top:20px;
+  padding:14px;
+  border:0;
+  border-radius:11px;
+  font-size:16px;
+  font-weight:700;
+  background:#2481cc;
+  color:white
+}
+
+.error{
+  color:#c62828;
+  font-size:14px;
+  margin-top:10px
+}
+
+.success{
+  display:none;
+  margin-top:14px;
+  padding:12px;
+  background:#e8f5e9;
+  border-radius:10px;
+  color:#1b5e20
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="title">
+🚗 Avtomobil ma'lumotlari
+</div>
+
+<div class="sub">
+E'lon uchun ma'lumotlarni to'ldiring.
+</div>
+
+<div class="card">
+
+<form id="adForm">
+
+<label>Mashina nomi</label>
+<input
+name="model"
+placeholder="Masalan: Chevrolet Cobalt 2-pozitsiya"
+required
+>
+
+<label>Yili</label>
+<input
+name="year"
+type="number"
+min="1900"
+max="2100"
+placeholder="Masalan: 2022"
+required
+>
+
+<label>Probegi</label>
+<input
+name="mileage"
+placeholder="Masalan: 85 000 km"
+required
+>
+
+<label>Kraska</label>
+<input
+name="paint"
+placeholder="Masalan: Toza"
+required
+>
+
+<label>Yoqilg'i</label>
+<input
+name="fuel"
+placeholder="Masalan: Benzin"
+required
+>
+
+<label>Navarotlari</label>
+<textarea
+name="features"
+placeholder="Masalan: konditsioner, kamera, monitor..."
+></textarea>
+
+<label>Narxi</label>
+<input
+name="price"
+placeholder="Masalan: 150 000 000 so'm"
+required
+>
+
+<label>Telefon</label>
+<input
+name="phone"
+type="tel"
+placeholder="+998 90 123 45 67"
+required
+>
+
+<label>Manzil</label>
+<input
+name="address"
+placeholder="Masalan: Toshkent shahri"
+required
+>
+
+<div class="photos">
+
+<b>📸 Rasmlar</b>
+
+<div>
+Avtomobil rasmlarini tanlang — 4 tagacha.
+</div>
+
+<input
+id="photos"
+type="file"
+accept="image/*"
+multiple
+>
+
+<small>
+Tanlangan rasmlar:
+<span id="count">0</span>/4
+</small>
+
+<div
+id="preview"
+class="preview"
+></div>
+
+</div>
+
+<div
+id="error"
+class="error"
+></div>
+
+<button
+class="btn"
+type="submit"
+>
+✅ Davom etish
+</button>
+
+<div
+id="success"
+class="success"
+>
+Ma'lumotlar qabul qilindi.
+</div>
+
+</form>
+
+</div>
+</div>
+
+<script>
+
+(function(){
+
+const tg =
+window.Telegram &&
+window.Telegram.WebApp;
+
+if(tg){
+tg.ready();
+tg.expand();
+}
+
+const form =
+document.getElementById('adForm');
+
+const files =
+document.getElementById('photos');
+
+const preview =
+document.getElementById('preview');
+
+const count =
+document.getElementById('count');
+
+const error =
+document.getElementById('error');
+
+const success =
+document.getElementById('success');
+
+let selected=[];
+
+files.addEventListener(
+'change',
+function(){
+
+error.textContent='';
+
+selected =
+Array.from(files.files).slice(0,4);
+
+count.textContent =
+selected.length;
+
+preview.innerHTML='';
+
+selected.forEach(function(file){
+
+const img =
+document.createElement('img');
+
+img.alt='Avtomobil rasmi';
+
+img.src =
+URL.createObjectURL(file);
+
+preview.appendChild(img);
+
+});
+
+if(files.files.length>4){
+
+error.textContent =
+'Maksimal 4 ta rasm tanlash mumkin.';
+
+}
+
+});
+
+form.addEventListener(
+'submit',
+function(e){
+
+e.preventDefault();
+
+error.textContent='';
+
+if(selected.length<1){
+
+error.textContent =
+'Kamida 1 ta rasm tanlang.';
+
+return;
+
+}
+
+const data =
+Object.fromEntries(
+new FormData(form).entries()
+);
+
+data.photos =
+selected.map(function(file){
+
+return {
+name:file.name,
+type:file.type,
+size:file.size
+};
+
+});
+
+if(tg && tg.sendData){
+
+tg.sendData(
+JSON.stringify(data)
+);
+
+success.style.display='block';
+
+}else{
+
+success.style.display='block';
+
+success.textContent =
+'Sinov rejimi. Telegram ichida ochilganda botga yuboriladi.';
+
+}
+
+});
+
+})();
+
+</script>
+
+</body>
+</html>
